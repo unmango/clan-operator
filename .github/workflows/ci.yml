@@ -1,0 +1,23 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  # The gate the main ruleset requires. It passes when every job in `needs`
+  # passed. Nothing else runs yet.
+  required:
+    runs-on: ubuntu-latest
+    # Once jobs exist, add `needs: [<jobs>]` and `if: always()` here.
+    steps:
+      - name: Check needed jobs
+        env:
+          RESULTS: ${{ toJSON(needs.*.result) }}
+        run: |
+          echo "$RESULTS"
+          if echo "$RESULTS" | grep -Eq '"(failure|cancelled|skipped)"'; then
+            exit 1
+          fi
